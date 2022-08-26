@@ -82,7 +82,7 @@ On apprend dans les mails reçus que l'on peut accéder à la database avec les 
 ## PhpMyAdmin Webshell exploit
 
 On peut effectivement se connecter à phpMyAdmin (https://192.168.56.#/phpmyadmin) avec les identifiants découverts.
-Après quelques recherchers, cette version de phpMyAdmin est vulnérable à un [exploit Webshell](https://www.netspi.com/blog/technical/network-penetration-testing/linux-hacking-case-studies-part-3-phpmyadmin/). Pour pouvoir exploiter cette vulnérabilité, il va falloir trouver un dossier où l'on peut écrire.
+Après quelques recherches, cette version de phpMyAdmin est vulnérable à un [exploit Webshell](https://www.netspi.com/blog/technical/network-penetration-testing/linux-hacking-case-studies-part-3-phpmyadmin/). Pour pouvoir exploiter cette vulnérabilité, il va falloir trouver un dossier où l'on peut écrire.
 
 - `dirb https://192.168.56.101/forum ~/Applications/dirb222/wordlists/common.txt -rN 403`
   ```shell
