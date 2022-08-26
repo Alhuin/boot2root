@@ -170,11 +170,10 @@ Ce script se trouve dans le dossier script du rendu.
     330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4
   ```
 
-<h1> Connexion SSH </h1>
+## Connexion SSH & dirty cow
 
-En ayant une connexion SSH, nous pouvons désormais continuer de suivre le chemin de petits cailloux, ou bien utiliser d'autres exploitations, ce que nous allons évidemment faire.
-
-<h2>Dirty Cow</h2>
+- `ssh laurie@192.168.56.#`
+  - `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4` 
 
 Nous l'avions appris précédemment, le kernel est un Linux de version inférieure à 4.0
 
@@ -185,5 +184,7 @@ An unprivileged local user could use this flaw to gain write access to otherwise
 
 De nombreux codes existent sur internet afin de profiter de cette vulnérabilité, et nous avons choisi d'utiliser [ce code](https://www.exploit-db.com/exploits/40839), présent dans le dossier scripts, qui modifie le nom de connexion à root et change son password.
 
-On ouvre donc un editeur de code (tel que vim) dans la VM, et on sauvegarde le code du dirty cow dans un fichier .c, à compiler avec la commande `gcc -pthread dirty.c -lcrypt` et on exécute.
+On ouvre donc un editeur de code (tel que vim) dans la VM, et on sauvegarde le code du dirty cow dans un fichier .c, à compiler avec la commande `gcc -pthread dirty.c -lcrypt`.
+
+- `dirty.c passwd`
 On peut ensuite suivre les instructions du programme, puis se connecter avec les credentials appropriés sur la VM.
