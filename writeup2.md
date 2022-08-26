@@ -18,6 +18,7 @@ On modifie donc le path de init pour qu'il nous ouvre un shell plutot que le cla
 - `live init=/bin/sh`
   ```shell
     error: unexpectedly disconnected from boot status daemon.
+  [...]
     /bin/sh: 0: can't access tty; job control turned off
   ```
 - `# whoami`
