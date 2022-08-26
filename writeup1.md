@@ -151,19 +151,24 @@ En fouinant un découvre que le contenu de "/home/LOOKATME/password" contient de
 
 En faisant une première analyse manuelle de ce fichier, on voit clairement qu'il contient du code C, avec un main contenant 12 fonctions getmeX(), qui doivent renvoyer un caractère.
 
-En décompilant ce fichier ("tar xvf fun"), on obtient un dossier ft_fun contenant de multiples fichiers aux noms barbares, contenant eux mêmes des morceaux de code C, avec un commentaire indiquant un numéro de fichier.
+- `tar -xvf fun`
+  -  On obtient un dossier ft_fun contenant de multiples fichiers aux noms barbares, contenant eux mêmes des morceaux de code C, avec un commentaire indiquant un numéro de fichier.
 
 On doit donc écrire un script pour trier et former, dans l'ordre indiqué par les commentaires des fichiers, le code C de ces mêmes fichiers.
-Ce script se trouve dans le dossier script du rendu, et doit être utilisé dans le dossier où se trouve le dossier ft_fun.
+Ce script se trouve dans le dossier script du rendu.
 
-En récupérant la suite du code du fichier fun qui ne faisait pas partie des fichiers décompilés, on arrive à reconstruire un fichier C compilable comprenant 12 fonctions et un main, dont la sortie est la suivante :
+- `python scripts/order.py`
+- `gcc not_fun.c`
+- ./a.out
+  ```shell
+    MY PASSWORD IS: Iheartpwnage
+    Now SHA-256 it and submit
+  ```
 
-> MY PASSWORD IS: Iheartpwnage
-Now SHA-256 it and submit
-
-On obtient donc le password suivant, pour l'utilisateur laurie :
-
->330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4
+- `echo -n 'Iheartpwnage' | shasum -a 256`
+  ```shell
+    330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4
+  ```
 
 <h1> Connexion SSH </h1>
 
