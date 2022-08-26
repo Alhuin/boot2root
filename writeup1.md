@@ -120,7 +120,7 @@ Après quelques recherchers, cette version de phpMyAdmin est vulnérable à un [
 En fouinant un découvre que le contenu de "/home/LOOKATME/password" contient des identifiants pour une connexion ftp:
 `lmezard` / `G!@M6f4Eatau{sF"`
 
-## Connexion FTP et le fichier fun
+## Connexion FTP et le fichier (pas) fun
 
 - `brew install inetutils`
 - `ftp`
