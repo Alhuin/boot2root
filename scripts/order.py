@@ -1,28 +1,19 @@
-import os.path
+import os
 import re
-import glob
+import sys
 
-def main():
-    if os.path.exists('./ft_fun'):
-        path = './ft_fun/*'
-        files = glob.glob(path)
-        a = [None] * 760
-        for file in files:
-            try :
-                with open(file) as f:
-                    content = f.read()
-                    code = content.split('\n')[0]
-                    fileNum = re.search('(\d+)', content.split('\n')[2])
-                    if fileNum:
-                        fileNum = int(fileNum.group(1)) - 1
-                        a[fileNum] = code + '\n'
-            except IOError as exc:
-                if exc.errno != errno.EISDIR:
-                    raise
-        w = open('ordered_fun.c', 'w')
-        st = ""
-    if os.path
-    for e in a:
-        st = st + e
-    w.write(st)
-main()
+indexed_contents = {}
+
+for file_name in os.listdir("ft_fun"):
+    fd = open(f"ft_fun/{file_name}", 'r')
+    content = fd.read()
+    fd.close()
+    match = re.search(r'//file([0-9]*)', content)
+    index = int(match.group(1))
+    indexed_contents[index] = re.sub(r'//file[0-9]*', '', content)
+
+ordered_content = [value for _, value in sorted(indexed_contents.items())]
+
+with open("not_fun.c", 'w+') as fd:
+    fd.write(''.join(ordered_content))
+fd.close()
