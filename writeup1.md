@@ -1,5 +1,5 @@
 
-# Configuration de la VM et ports
+## Configuration de la VM et ports
 
 Après avoir créé simplement une VM, monté l'ISO du sujet, on peut configuer les options réseau de la VM sur virtualbox
 
@@ -13,32 +13,25 @@ Dans adapteur1, créer un host-only, avec comme nom celui précédemment créé.
 
 On lance la VM.
 
+## Scan de la VM
+
 On cherche l'adresse ip de notre VM. Dans la console :
 
->nmap 192.168.56.1-255
-
-> Starting Nmap 7.70 ( https://nmap.org ) at 2019-05-21 17:05 CEST<br/>
-Nmap scan report for 192.168.56.1<br/>
-Host is up (0.00018s latency).<br/>
-Not shown: 997 closed ports<br/>
-PORT STATE SERVICE<br/>
-22/tcp open ssh<br/>
-1862/tcp filtered mysql-cm-agent<br/>
-5001/tcp filtered commplex-link<br/>
-Nmap scan report for 192.168.56.100<br/>
-Host is up (0.00076s latency).<br/>
-All 1000 scanned ports on 192.168.56.100 are closed<br/>
-Nmap scan report for 192.168.56.101<br/>
-Host is up (0.00063s latency).<br/>
-Not shown: 994 closed ports<br/>
-PORT STATE SERVICE<br/>
-21/tcp open ftp<br/>
-22/tcp open ssh<br/>
-80/tcp open http<br/>
-143/tcp open imap<br/>
-443/tcp open https<br/>
-993/tcp open imaps<br/>
-Nmap done: 255 IP addresses (3 hosts up) scanned in 31.05 seconds<br/>
+- `nmap 192.168.56.0-255`
+  ```shell
+  [...]
+    Nmap scan report for 192.168.56.101
+    Host is up (0.10s latency).
+    Not shown: 994 closed tcp ports (conn-refused)
+    PORT    STATE SERVICE
+    21/tcp  open  ftp
+    22/tcp  open  ssh
+    80/tcp  open  http
+    143/tcp open  imap
+    443/tcp open  https
+    993/tcp open  imaps
+  [...]
+  ```
 
 L'adresse qui nous intéresse ici est 192.168.56.101, car c'est celle qui possède le plus de ports d'ouverts.
 On prendra toujours la dernière adresse qui possede le plus de ports ouverts, son numero peut changer selon les installations.
@@ -46,44 +39,45 @@ On l'appelera 192.168.56.#.
 
 <h1> Utiliser un 'penetration testing tools' pour trouver d'autres accès</h1>
 
-On utilise **Dirb**, qui accède par http ou https à la machine et trouve les pages web accessibles sur le port 80 et 443.
+On utilise **[Dirb](https://www.kali.org/tools/dirb/)**, qui cher he les pages web accessibles sur l'ip fournie.
 
-On découvre ainsi l'existence d'un forum, à l'adresse https://192.168.56.#/forum/
+- `./scripts/install_dirb`
+- `dirb https://192.168.56.101 ~/Applications/dirb222/wordlists/common.txt -rN 403`
+  ```shell
+  [...]
+    ---- Scanning URL: https://192.168.56.101/ ----
+    ==> DIRECTORY: https://192.168.56.101/forum/
+    ==> DIRECTORY: https://192.168.56.101/phpmyadmin/
+    ==> DIRECTORY: https://192.168.56.101/webmail/
+  [...]
+  ```
+On découvre ainsi l'existence d'un forum, d'un phpMyAdmin et d'un webmail.
 
 <h2> Forum </h2>
 
-Et voici un extrait intéressant de la page https://192.168.56.#/forum/index.php?id=6
+Parmi les sujets sur le forum, lmezard en a créé un nommé "Problème login ?" dont voici un extrait:
 
 >Oct 5 08:45:26 BornToSecHackMe sshd[7547]: input_userauth_request: invalid user adam [preauth]<br/>
 Oct 5 08:45:27 BornToSecHackMe sshd[7547]: pam_unix(sshd:auth): check pass; user unknown<br/>
 Oct 5 08:45:27 BornToSecHackMe sshd[7547]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=161.202.39.38-static.reverse.softlayer.com<br/>
-Oct 5 08:45:29 BornToSecHackMe sshd[7547]: Failed password for invalid user !q\]Ej?*5K5cy*AJ from 161.202.39.38 port 57764 ssh2<br/>
+Oct 5 08:45:29 BornToSecHackMe sshd[7547]: **Failed password for invalid user !q\]Ej?*5K5cy*AJ** from 161.202.39.38 port 57764 ssh2<br/>
 Oct 5 08:45:29 BornToSecHackMe sshd[7547]: Received disconnect from 161.202.39.38: 3: com.jcraft.jsch.JSchException: Auth fail [preauth]<br/>
 Oct 5 08:46:01 BornToSecHackMe CRON[7549]: pam_unix(cron:session): session opened for user lmezard by (uid=1040)<br/>
 Oct 5 09:21:01 BornToSecHackMe CRON[9111]: pam_unix(cron:session): session closed for user lmezard<br/>
 Oct 5 10:51:01 BornToSecHackMe CRON[13049]: pam_unix(cron:session): session closed for user root<br/>
 
-Un utilisateur a confondu son login et son password : !q\]Ej?*5K5cy*AJ
+L'utilisateur a entré ce qui ressemble à un password dans le champs login: `!q\]Ej?*5K5cy*AJ`
 
-On suppose que le password a été utilisé pour l'utilisateur qui s'est enregistré peu après, soit lmezard.
-
-On utilise donc ces identifiants sur le forum - via l'hyperlien 'Sign in' en haut à droite de la page.
-
-Dans les paramètres du user, on trouve aussi son mail :
-
-laurie@borntosec.net
+On essaie donc ce mot de passe pour l'utilisateur lmezard sur le forum via le lien 'Log in' en haut à droite de la page, ça fontionne !
+Dans les paramètres du user, on trouve aussi son mail : `laurie@borntosec.net`
 
 <h2> Webmail </h2>
 
-On peut accéder à un plugin de mailing en suivant ce lien https://192.168.56.#/webmail/src/login.php :
-
-On s'y connecte en utilisant ce mail : laurie@borntosec.net
-
-On suppose que le password est le même que sur le forum : !q\]Ej?*5K5cy*AJ
+On peut accéder au webmail précédemment decouvert (https://192.168.56.#/webmail) avec l'adresse mail et le mot de passe du forum, ça fonctionne également !
 
 On y apprend, dans les mails reçus, que l'on peut accéder à la database avec les identifiants suivants, qui sont envoyés par ft_root@mail.borntosec.net :
 
-root / Fg-'kKXBj87E:aJ$
+`root` / `Fg-'kKXBj87E:aJ$`
 
 <h2>PhpMyAdmin</h2>
 
