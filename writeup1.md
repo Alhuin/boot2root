@@ -177,7 +177,7 @@ Ce script se trouve dans le dossier script du rendu.
 
 Nous l'avions appris précédemment, le kernel est un Linux de version inférieure à 4.0
 
-C'est pourquoi nous pouvons utiliser une vulnérabilité du système, au doux nom de Dirty Cow (ref. CVE-2016-5195)
+C'est pourquoi nous pouvons utiliser une vulnérabilité du système, au doux nom de [Dirty Cow](https://dirtycow.ninja/) (ref. CVE-2016-5195)
 
 >  _A [race condition](https://en.wikipedia.org/wiki/Race_condition) was found in the way the Linux kernel's memory subsystem handled the copy-on-write (COW) breakage of private read-only memory mappings.
 An unprivileged local user could use this flaw to gain write access to otherwise read-only memory mappings and thus increase their privileges on the system._
