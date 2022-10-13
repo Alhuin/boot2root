@@ -39,9 +39,9 @@ On l'appelera 192.168.56.#.
 
 ## Utiliser un 'penetration testing tools' pour trouver d'autres accès
 
-On utilise **[Dirb](https://www.kali.org/tools/dirb/)**, qui cher he les pages web accessibles sur l'ip fournie.
+On utilise **[Dirb](https://www.kali.org/tools/dirb/)**, qui cherche les pages web accessibles sur l'ip fournie.
 
-- `./scripts/install_dirb`
+- [`./scripts/install_dirb`](https://gist.github.com/rudSarkar/81da3c1d62aa67d9f886e9d0bf5f668a)
 - `dirb https://192.168.56.101 ~/Applications/dirb222/wordlists/common.txt -rN 403`
   ```shell
   [...]
